@@ -57,7 +57,7 @@ const App = () => {
           {/* name of each tab group should be unique */}
           <div className="tabs tabs-lift">
               <label className="tab ">
-                <input type="radio" name="my_tabs_4"/>
+                <input type="radio" name="my_tabs_4" defaultChecked/>
                 <img src={change} alt="" width={20} height={20}/>
                 Cambios de Linea
               </label>

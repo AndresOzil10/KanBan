@@ -1,4 +1,7 @@
+import { useState } from "react"
+
 const Material = () => { 
+  const [Login, setLogin] = useState(false)
     return (
         <>
             <div className="overflow-x-auto shadow-2xl">
@@ -32,7 +35,7 @@ const Material = () => {
                 <td>2023-10-01</td>
                 <td><div className="badge badge-soft badge-error">Pending</div></td>
                 <td>
-                    <input type="checkbox" className="checkbox" />
+                    <button className="btn btn-ghost btn-xs" onClick={()=> setLogin(true)}>Check</button>
                 </td>
               </tr>
               <tr>
@@ -49,6 +52,18 @@ const Material = () => {
               </tr>
             </tbody>
           </table>
+          <dialog open={Login} className="modal">
+            <div className="modal-box">
+              <h3 className="font-bold text-lg">Hello!</h3>
+              <p className="py-4">Press ESC key or click the button below to close</p>
+              <div className="modal-action">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn" onClick={()=>setLogin(false)}>Close</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
         </div>
         </>
     )

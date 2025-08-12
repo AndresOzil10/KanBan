@@ -5,15 +5,16 @@ import SaveIcon from "../icons/saveIcon";
 // import Notificacion from "./Notificacion"; // Asegúrate de tener este componente
 
 const LineChanges = () => {
-    const [open, setOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [nombreNomina, setNombreNomina] = useState('');
-    const [npProducto, setNpProducto] = useState('');
-    const [ordenProduccion, setOrdenProduccion] = useState('');
-    const [puestoTrabajo, setPuestoTrabajo] = useState('');
-    const [componentes, setComponentes] = useState('');
-    const [mensaje, setMensaje] = useState('');
-    const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
+    const [open, setOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [nombreNomina, setNombreNomina] = useState('')
+    const [npProducto, setNpProducto] = useState('')
+    const [ordenProduccion, setOrdenProduccion] = useState('')
+    const [puestoTrabajo, setPuestoTrabajo] = useState('')
+    const [componentes, setComponentes] = useState('')
+    const [mensaje, setMensaje] = useState('')
+    const [login, setLogin] = useState(false)
+    const [mostrarNotificacion, setMostrarNotificacion] = useState(false)
 
     const agregarRegistro = async () => {
         setIsLoading(true);
@@ -53,12 +54,24 @@ const LineChanges = () => {
                             <td>2023-10-01</td>
                             <td><div className="badge badge-soft badge-warning">In Process</div></td>
                             <td>
-                                <input type="checkbox" className="checkbox" />
+                                <button className="btn btn-ghost btn-xs" onClick={()=>setLogin(true)}>Check</button>
                             </td>
                         </tr>
                         {/* Más filas aquí */}
                     </tbody>
                 </table>
+                <dialog open={login} className="modal">
+                    <div className="modal-box">
+                        <h3 className="font-bold text-lg">Hello!</h3>
+                        <p className="py-4">Press ESC key or click the button below to close</p>
+                        <div className="modal-action">
+                        <form method="dialog">
+                            {/* if there is a button in form, it will close the modal */}
+                            <button className="btn" onClick={()=>setLogin(false)}>Close</button>
+                        </form>
+                        </div>
+                    </div>
+                </dialog>
             </div>
             <div className="flex justify-end">
                 <button className="btn bg-transparent border-none mt-4 btn-square shadow-none" onClick={() => setOpen(true)}>
@@ -112,6 +125,7 @@ const LineChanges = () => {
                     </div>
                 </div>
             </dialog>
+            
             {mostrarNotificacion && <Notificacion mensaje={mensaje} />}
         </>
     );
