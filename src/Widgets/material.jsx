@@ -1,8 +1,10 @@
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import CloseIcon from "../icons/close"
 import SaveIcon from "../icons/saveIcon"
 import user from "../assets/gif/user.gif"
 import gif from "../assets/gif/password.gif"
+import ButtonLogin from "./buttonLogin"
+import axios from "axios"
 
 const Material = () => { 
   const [Login, setLogin] = useState(false)
@@ -10,10 +12,33 @@ const Material = () => {
   const [Password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  // useEffect(() => {
+  //   axios.get('http://localhost/Python/saludo.py')
+  //       .then(response => {
+  //           console.log(response.data.mensaje);
+  //       })
+  //       .catch(error => {
+  //           console.error("Error al obtener datos:", error);
+  //       });
+  // }, []);
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost/Python/saludo.py');
+        const data = await response.json();
+        console.log(data.mensaje);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
   const agregarRegistro = async () => {
         setIsLoading(true);
         
-    }
+  }
     return (
         <>
             <div className="overflow-x-auto shadow-2xl">
@@ -47,7 +72,7 @@ const Material = () => {
                 <td>2023-10-01</td>
                 <td><div className="badge badge-soft badge-error">Pending</div></td>
                 <td>
-                    <button className="btn btn-ghost btn-xs" onClick={()=> setLogin(true)}>Check</button>
+                    <button className="btn btn-block btn-xs bg-" onClick={()=> setLogin(true)}>Change</button>
                 </td>
               </tr>
               <tr>
@@ -108,7 +133,7 @@ const Material = () => {
                   onClick={agregarRegistro}
                   disabled={isLoading}
                 >
-                  {isLoading ? <span className="loading loading-infinity text-info"></span> : "Login"}
+                  {isLoading ? <span className="loading loading-infinity text-info"></span> : "Sing In"}
                 </button>
                 <button className="btn bg-transparent border-none shadow-none" onClick={() => setLogin(false)}>
                   <CloseIcon />
