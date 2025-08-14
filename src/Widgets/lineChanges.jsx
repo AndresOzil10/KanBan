@@ -52,7 +52,7 @@ const LineChanges = () => {
                             <td>test</td>
                             <td>test</td>
                             <td>2023-10-01</td>
-                            <td><div className="badge badge-soft badge-warning">In Process</div></td>
+                            <td><div className="badge badge-outline badge-warning">In Process</div></td>
                             <td>
                                 <button className="btn btn-ghost btn-xs" onClick={()=>setLogin(true)}>Check</button>
                             </td>
