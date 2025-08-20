@@ -39,7 +39,7 @@ const App = () => {
 
   return (
 
-    <div className=" h-[100vh] flex flex-col bg-cover items-center" style={{ backgroundImage: `url(${fondo})` }}>
+    <div className=" h-full flex flex-col bg-cover items-center" style={{ backgroundImage: `url(${fondo})` }}>
       <div className="flex justify-center w-full mt-8">
         <div className="card bg-error/13 w-96 shadow-sm mx-auto">
           <figure>
