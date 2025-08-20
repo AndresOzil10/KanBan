@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import CloseIcon from "../icons/close";
-import user from "../assets/gif/user.gif";
-import gif from "../assets/gif/password.gif";
+import { useCallback, useEffect, useState } from "react"
+import CloseIcon from "../icons/close"
+import user from "../assets/gif/user.gif"
+import gif from "../assets/gif/password.gif"
+import Swal from "sweetalert2"
 
 const url = "http://localhost/API/Kanban/functions.php";
 
@@ -32,6 +33,8 @@ const Material = () => {
   const [Dato, setData] = useState([]);
   const [error, setError] = useState(null);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false)
+  const [selectedId, setSelectedId] = useState(null)
+  const [selectedStatus, setSelectedStatus] = useState(null)
 
   const fetchData = useCallback( async () => {
     const info = { aksi: "requested" };
@@ -49,16 +52,43 @@ const Material = () => {
 
   
 
-  const agregarRegistro = async () => {
+  const agregarRegistro = async (selectedId, selectedStatus) => {
     if (!Usuario || !Password) {
       setMostrarNotificacion(true);
       setTimeout(() => setMostrarNotificacion(false), 3000);
       return;
     }
-    setIsLoading(true);
-    // Aquí puedes agregar la lógica para enviar el registro
-    // Por ejemplo, enviar los datos a la API
-    setIsLoading(false);
+    const info = { aksi: "login",
+      username: Usuario,
+      password: Password,
+      id : selectedId,
+      estatus: selectedStatus,
+      tipo: "Material"
+     }
+    setIsLoading(true)
+      const response = await enviarData(url, info)
+      if(response.status ==='error'){
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message,
+          // imageUrl: 'https://media.tenor.com/U5hmONvZGo8AAAAM/mmt-error-error.gif',
+          // background: '#000000'
+        })
+      } else if(response.status === 'success'){
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: response.message,
+          // imageUrl: 'https://media.tenor.com/1b2d3f4g5h6iAAAAM/success.gif',
+          // background: '#000000'
+        })
+        setLogin(false);
+        fetchData();
+      }
+    setPassword('')
+    setUsuario('')
+    setIsLoading(false)
   }
 
   return (
@@ -67,7 +97,7 @@ const Material = () => {
         <table className="table">
           <thead>
             <tr>
-              <th></th>
+              <th>id</th>
               <th>N. Material</th>
               <th>Nombre</th>
               <th>SP</th>
@@ -83,7 +113,7 @@ const Material = () => {
           <tbody>
             {(Array.isArray(Dato) ? Dato : []).map((item, index) => (
               <tr key={index}>
-                <th>{index + 1}</th>
+                <th>{item.id}</th>
                 <td>{item.codigo}</td>
                 <td>{item.nommat}</td>
                 <td>{item.sp}</td>
@@ -93,15 +123,27 @@ const Material = () => {
                 <td></td>
                 <td>{item.fecha}</td>
                 <td>
-                  {item.estatus === "Pendiente" ? (
-                    <div className="badge badge-outline badge-warning">Pending</div>
-                  ) : item.estatus === "Completo" ? (
-                    <div className="badge badge-success">Entregado</div>
-                  ) : item.estatus === "En Proceso" ? (
-                    <div className="badge badge-info">En Proceso</div>
+                  {item.estatus === "En Proceso" ? (
+                    <div className="badge badge-outline badge-warning">En Proceso</div>
+                  ) : item.estatus === "Preparado" ? (
+                    <div className="badge badge-outline badge-success">Preparado</div>
+                  ) : item.estatus === "Recibido" ? (
+                    <div className="badge badge-outline badge-info">Recibido</div>
                   ): null}
                 </td>
-                <td><button className="btn btn-ghost btn-xs" onClick={()=>setLogin(true)}>Check</button></td>
+                <td>
+                  <button
+                    className="btn btn-ghost btn-xs"
+                    onClick={() => {
+                      setLogin(true)
+                      setSelectedId(item.id)
+                      setSelectedStatus(item.estatus)
+                    }}
+                    disabled={item.estatus === "Preparado"}
+                  >
+                    Check
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -134,7 +176,6 @@ const Material = () => {
                   type="password"
                   required
                   placeholder="Password"
-                  minLength="8"
                   value={Password}
                   onChange={e => setPassword(e.target.value)}
                 />
@@ -144,7 +185,7 @@ const Material = () => {
             <div className="modal-action ml-9 ">
               <button
                 className="btn bg-transparent border-none shadow-none"
-                onClick={agregarRegistro}
+                onClick={() => agregarRegistro(selectedId, selectedStatus)}
                 disabled={isLoading}
               >
                 {isLoading ? <span className="loading loading-infinity text-info"></span> : "Sign In"}
