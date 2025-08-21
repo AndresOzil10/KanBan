@@ -103,8 +103,6 @@ const Material = () => {
               <th>SP</th>
               <th>Ubicacion</th>
               <th>Contenedor</th>
-              <th>Ayuda Visual</th>
-              <th>Puesto Trabajo</th>
               <th>Fecha</th>
               <th>Estatus</th>
               <th>Check</th>
@@ -112,15 +110,13 @@ const Material = () => {
           </thead>
           <tbody>
             {(Array.isArray(Dato) ? Dato : []).map((item, index) => (
-              <tr key={index}>
+              <tr key={index} className="hover:bg-base-300">
                 <th>{item.id}</th>
                 <td>{item.codigo}</td>
                 <td>{item.nommat}</td>
                 <td>{item.sp}</td>
                 <td>{item.ubicacion}</td>
                 <td>{item.contenedor}</td>
-                <td></td>
-                <td></td>
                 <td>{item.fecha}</td>
                 <td>
                   {item.estatus === "En Proceso" ? (

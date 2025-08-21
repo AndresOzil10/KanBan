@@ -2,6 +2,9 @@ import { useCallback, useEffect, useState } from "react"
 import add from "../assets/gif/add.gif"
 import CloseIcon from "../icons/close"
 import SaveIcon from "../icons/saveIcon"
+import user from "../assets/gif/user.gif"
+import gif from "../assets/gif/password.gif"
+import Swal from "sweetalert2"
 
 const url = "http://localhost/API/Kanban/functions.php"
 
@@ -31,31 +34,37 @@ const LineChanges = () => {
     const [npProducto, setNpProducto] = useState('')
     const [ordenProduccion, setOrdenProduccion] = useState('')
     const [mensaje, setMensaje] = useState('')
+    const [showInfo, setShowInfo] = useState([])
     const [login, setLogin] = useState(false)
+    const [info, setInfo] = useState(false)
     const [mostrarNotificacion, setMostrarNotificacion] = useState(false)
     const [Error, setError] = useState(null)
     const [Dato, setData] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [recordsPerPage] = useState(10) 
+    const [Usuario, setUsuario] = useState('')
+    const [Password, setPassword] = useState('')
+    const [selectedId, setSelectedId] = useState(null)
+    const [selectedStatus, setSelectedStatus] = useState(null)
 
     const fetchData = useCallback(async () => {
         const info = { aksi: "LineChange" }
         try {
-            const response = await enviarData(url, info);
-            setData(response.data);
+            const response = await enviarData(url, info)
+            setData(response.data)
         } catch (error) {
             setError("Error al obtener los datos. Intenta de nuevo más tarde.")
         }
     }, [])
 
     useEffect(() => {
-        fetchData();
+        fetchData()
     }, [fetchData])
 
     const agregarRegistro = async () => {
         if (!nombreNomina || !npProducto || !ordenProduccion) {
             setMostrarNotificacion(true);
-            setTimeout(() => setMostrarNotificacion(false), 3000);
+            setTimeout(() => setMostrarNotificacion(false), 3000)
             return;
         }
         const info = {
@@ -64,8 +73,8 @@ const LineChanges = () => {
             np: npProducto,
             op: ordenProduccion,
         };
-        setIsLoading(true);
-        const response = await enviarData(url, info);
+        setIsLoading(true)
+        const response = await enviarData(url, info)
         if (response.status === 'error') {
             Swal.fire({
                 icon: 'error',
@@ -78,15 +87,72 @@ const LineChanges = () => {
                 title: 'Success',
                 text: response.message,
             });
-            setLogin(false);
-            fetchData();
+            setLogin(false)
+            fetchData()
         }
-        setNombreNomina('');
-        setNpProducto('');
-        setOrdenProduccion('');
+        setNombreNomina('')
+        setNpProducto('')
+        setOrdenProduccion('')
     }
 
-    // Calcular los registros a mostrar en la página actual
+    const searchData = async (id) => {
+        
+        const info = { aksi: "DetailsPT", pt: id }
+        try {
+            const response = await enviarData(url, info)
+            setShowInfo(response.data)
+            // console.log(response)
+            // Maneja la respuesta como sea necesario
+        } catch (error) {
+            console.error("Error al buscar los datos:", error)
+        }
+        setInfo(true)
+    }
+
+    const CloseInfo = () => {
+        setInfo(false)
+        fetchData()
+    }
+
+    const agregarRegister = async (selectedId, selectedStatus) => {
+        if (!Usuario || !Password) {
+          setMostrarNotificacion(true);
+          setTimeout(() => setMostrarNotificacion(false), 3000);
+          return;
+        }
+        const info = { aksi: "login",
+          username: Usuario,
+          password: Password,
+          id : selectedId,
+          estatus: selectedStatus,
+          tipo: "Cambio"
+         }
+        setIsLoading(true)
+          const response = await enviarData(url, info)
+          if(response.status ==='error'){
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: response.message,
+              // imageUrl: 'https://media.tenor.com/U5hmONvZGo8AAAAM/mmt-error-error.gif',
+              // background: '#000000'
+            })
+          } else if(response.status === 'success'){
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: response.message,
+              // imageUrl: 'https://media.tenor.com/1b2d3f4g5h6iAAAAM/success.gif',
+              // background: '#000000'
+            })
+            setLogin(false);
+            fetchData();
+          }
+        setPassword('')
+        setUsuario('')
+        setIsLoading(false)
+      }
+
     const indexOfLastRecord = currentPage * recordsPerPage;
     const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
     const currentRecords = Dato.slice(indexOfFirstRecord, indexOfLastRecord);
@@ -115,7 +181,7 @@ const LineChanges = () => {
                                 <th>{item.id}</th>
                                 <td>{item.np}</td>
                                 <td>{item.op}</td>
-                                <td><button className="btn btn-ghost btn-xs">a</button></td>
+                                <td><button className="btn btn-ghost btn-xs" onClick={()=>searchData(item.np)}><img width="22" height="20" src="https://img.icons8.com/emoji/48/information-emoji.png" alt="information-emoji"/></button></td>
                                 <td>{item.fecha}</td>
                                 <td>{item.hora}</td>
                                 <td>
@@ -166,15 +232,57 @@ const LineChanges = () => {
                 </div>
                 <dialog open={login} className="modal">
                     <div className="modal-box">
-                        <h3 className="font-bold text-lg">Hello!</h3>
-                        <p className="py-4">Press ESC key or click the button below to close</p>
-                        <div className="modal-action">
-                            <form method="dialog">
-                                <button className="btn" onClick={() => setLogin(false)}>Close</button>
-                            </form>
+                        <h3 className="font-bold text-lg text-center">Log In!</h3>
+                        <div className="w-full flex flex-col items-center mt-3">
+                        <label className="input validator">
+                            <img src={user} alt="" width={20} height={20} />
+                            <input
+                            type="text"
+                            required
+                            placeholder="Username"
+                            pattern="[A-Za-z][A-Za-z0-9\-]*"
+                            minLength="3"
+                            maxLength="30"
+                            title="Only letters, numbers or dash"
+                            value={Usuario}
+                            onChange={e => setUsuario(e.target.value)}
+                            />
+                        </label>
+                        <p className="validator-hint">Completa el nombre de usuario</p>
                         </div>
+                        <div className="w-full flex flex-col items-center">
+                        <label className="input validator">
+                            <img src={gif} alt="" width={20} height={20} />
+                            <input
+                            type="password"
+                            required
+                            placeholder="Password"
+                            value={Password}
+                            onChange={e => setPassword(e.target.value)}
+                            />
+                        </label>
+                        <p className="validator-hint hidden">Completa la contraseña</p>
+                        </div>
+                        <div className="modal-action ml-9 ">
+                        <button
+                            className="btn bg-transparent border-none shadow-none"
+                            onClick={() => agregarRegister(selectedId, selectedStatus)}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? <span className="loading loading-infinity text-info"></span> : "Sign In"}
+                        </button>
+                        <button className="btn bg-transparent border-none shadow-none" onClick={() => setLogin(false)}>
+                            <CloseIcon />
+                        </button>
+                        </div>
+                        {mostrarNotificacion ? <div role="alert" className="alert alert-error" >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span><b>Campos Vacios!</b> Favor de Completarlos.</span>
+                        </div> : null}
                     </div>
-                </dialog>
+                    </dialog>
             </div>
             <div className="flex justify-end">
                 <button className="btn bg-transparent border-none mt-4 btn-square shadow-none" onClick={() => setOpen(true)}>
@@ -220,6 +328,51 @@ const LineChanges = () => {
                         </svg>
                         <span><b>Campos Vacios!</b> Favor de Completarlos.</span>
                     </div> : null}
+                </div>
+            </dialog>
+            <dialog open={info} className="modal">
+                <div className="modal-box w-11/12 max-w-5xl">
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th>Bito</th>
+                                <th>Material</th>
+                                <th>Description</th>
+                                <th>SP</th>
+                                <th>Suministro</th>
+                                <th>Puesto</th>
+                            </tr>
+                            </thead>
+                        <tbody>
+                        {showInfo.map((item, index) => (
+                            <tr key={index} className="hover:bg-base-300">
+                                <td>
+                                    <div className="">{item.bito}</div>
+                                </td>
+                                <td>
+                                    <div className="">{item.material}</div>
+                                </td>
+                                <td>
+                                    <div className="">{item.descripcion}</div>
+                                </td>
+                                <td>
+                                    <div className="">{item.sp}</div>
+                                </td>
+                                <td>
+                                    <div className="">{item.suministro}</div>
+                                </td>
+                                <td>
+                                    <div className="">{item.puesto}</div>
+                                </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    <div className="modal-action">
+                        <form method="dialog">
+                            <button className="btn" onClick={CloseInfo}>Close</button>
+                        </form>
+                    </div>
                 </div>
             </dialog>
         </>
