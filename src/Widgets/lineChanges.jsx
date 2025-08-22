@@ -87,7 +87,7 @@ const LineChanges = () => {
                 title: 'Success',
                 text: response.message,
             });
-            setLogin(false)
+            setIsLoading(false)
             fetchData()
         }
         setNombreNomina('')
