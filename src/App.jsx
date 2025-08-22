@@ -6,9 +6,52 @@ import LineChanges from "./Widgets/lineChanges"
 import Material from "./Widgets/material"
 import change from "./assets/gif/change.gif"
 
+const url = "http://localhost/API/Kanban/functions.php"
+
+const enviarData = async (url, data) => {
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!resp.ok) {
+      throw new Error('Error en la respuesta de la API')
+    }
+    return await resp.json();
+  } catch (error) {
+    console.error("Error en la solicitud:", error)
+    throw error
+  }
+}
+
 const App = () => { 
   const [hora, setHora] = useState(new Date())
   const [fecha, setFecha] = useState(new Date())
+  const [ShowNotification, setshowNotification] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
+
+  const checkPendingStatus = async () => {
+    const info = { aksi: "Pending" }
+    try {
+      const response = await enviarData(url, info)
+      if (response.pending > 0) {
+        setPendingCount(response.pending)
+        showNotification()
+      }
+    } catch (error) {
+      console.error('Error fetching pending status:', error)
+    }
+  }
+
+  const showNotification = () => {
+    setshowNotification(true)
+    setTimeout(() => {
+      setshowNotification(false)
+    }, 7000)
+  }
 
   useEffect(() => {
     const actualizarHora = () => {
@@ -16,10 +59,15 @@ const App = () => {
       setFecha(new Date())
     }
 
+    const intervalId = setInterval(checkPendingStatus, 5000)
+
     const intervalo = setInterval(actualizarHora, 1000)
 
-    return () => clearInterval(intervalo)
+    return () => clearInterval(intervalo, intervalId)
+    
   }, [])
+
+  
 
   const formatearHora = (date) => {
     return date.toLocaleTimeString('es-ES', {
@@ -72,6 +120,15 @@ const App = () => {
           </div>
         </div>
       </div>
+      {ShowNotification && (
+        <div className="toast toast-top toast-end">
+          <div className="alert alert-error">
+            <div>
+              <span>Hay {pendingCount} elemento(s) pendientes.</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
  }
