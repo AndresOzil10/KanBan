@@ -6,7 +6,7 @@ import LineChanges from "./Widgets/lineChanges"
 import Material from "./Widgets/material"
 import change from "./assets/gif/change.gif"
 
-const url = "http://localhost/API/Kanban/functions.php"
+const url = import.meta.env.VITE_API_URL
 
 const enviarData = async (url, data) => {
   try {
@@ -66,8 +66,6 @@ const App = () => {
     return () => clearInterval(intervalo, intervalId)
     
   }, [])
-
-  
 
   const formatearHora = (date) => {
     return date.toLocaleTimeString('es-ES', {

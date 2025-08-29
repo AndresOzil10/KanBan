@@ -6,7 +6,7 @@ import user from "../assets/gif/user.gif"
 import gif from "../assets/gif/password.gif"
 import Swal from "sweetalert2"
 
-const url = "http://localhost/API/Kanban/functions.php"
+const url = import.meta.env.VITE_API_URL
 
 const enviarData = async (url, data) => {
   try {
@@ -282,7 +282,7 @@ const LineChanges = () => {
                         <span><b>Campos Vacios!</b> Favor de Completarlos.</span>
                         </div> : null}
                     </div>
-                    </dialog>
+                </dialog>
             </div>
             <div className="flex justify-end">
                 <button className="btn bg-transparent border-none mt-4 btn-square shadow-none" onClick={() => setOpen(true)}>
@@ -341,6 +341,7 @@ const LineChanges = () => {
                                 <th>SP</th>
                                 <th>Suministro</th>
                                 <th>Puesto</th>
+                                <th>Check</th>
                             </tr>
                             </thead>
                         <tbody>
@@ -363,6 +364,9 @@ const LineChanges = () => {
                                 </td>
                                 <td>
                                     <div className="">{item.puesto}</div>
+                                </td>
+                                <td>
+                                    <input type="checkbox" className="checkbox checkbox-xs" />
                                 </td>
                             </tr>
                         ))}

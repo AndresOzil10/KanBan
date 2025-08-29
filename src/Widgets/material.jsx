@@ -4,7 +4,7 @@ import user from "../assets/gif/user.gif"
 import gif from "../assets/gif/password.gif"
 import Swal from "sweetalert2"
 
-const url = "http://localhost/API/Kanban/functions.php";
+const url = import.meta.env.VITE_API_URL
 
 const enviarData = async (url, data) => {
   try {
@@ -26,31 +26,33 @@ const enviarData = async (url, data) => {
 }
 
 const Material = () => { 
-  const [Login, setLogin] = useState(false);
-  const [Usuario, setUsuario] = useState('');
-  const [Password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [Dato, setData] = useState([]);
-  const [error, setError] = useState(null);
+  const [Login, setLogin] = useState(false)
+  const [Usuario, setUsuario] = useState('')
+  const [Password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [Dato, setData] = useState([])
+  const [error, setError] = useState(null)
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   const [selectedStatus, setSelectedStatus] = useState(null)
+  
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1)
+  const [recordsPerPage] = useState(10) // Cambia este valor para ajustar la cantidad de registros por página
 
-  const fetchData = useCallback( async () => {
-    const info = { aksi: "requested" };
+  const fetchData = useCallback(async () => {
+    const info = { aksi: "requested" }
     try {
-      const response = await enviarData(url, info);
+      const response = await enviarData(url, info)
       setData(response.data || [])
     } catch (error) {
-      setError("Error al obtener los datos. Intenta de nuevo más tarde.");
+      setError("Error al obtener los datos. Intenta de nuevo más tarde.")
     }
-  }, [] )
-
-  useEffect(() => {
-    fetchData()
   }, [])
 
-  
+  useEffect(() => {
+    fetchData();
+  }, [fetchData])
 
   const agregarRegistro = async (selectedId, selectedStatus) => {
     if (!Usuario || !Password) {
@@ -58,38 +60,41 @@ const Material = () => {
       setTimeout(() => setMostrarNotificacion(false), 3000);
       return;
     }
-    const info = { aksi: "login",
+    const info = { 
+      aksi: "login",
       username: Usuario,
       password: Password,
-      id : selectedId,
+      id: selectedId,
       estatus: selectedStatus,
       tipo: "Material"
-     }
-    setIsLoading(true)
-      const response = await enviarData(url, info)
-      if(response.status ==='error'){
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: response.message,
-          // imageUrl: 'https://media.tenor.com/U5hmONvZGo8AAAAM/mmt-error-error.gif',
-          // background: '#000000'
-        })
-      } else if(response.status === 'success'){
-        Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: response.message,
-          // imageUrl: 'https://media.tenor.com/1b2d3f4g5h6iAAAAM/success.gif',
-          // background: '#000000'
-        })
-        setLogin(false);
-        fetchData();
-      }
-    setPassword('')
-    setUsuario('')
-    setIsLoading(false)
+    };
+    setIsLoading(true);
+    const response = await enviarData(url, info);
+    if (response.status === 'error') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: response.message,
+      });
+    } else if (response.status === 'success') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: response.message,
+      });
+      setLogin(false);
+      fetchData();
+    }
+    setPassword('');
+    setUsuario('');
+    setIsLoading(false);
   }
+
+  // Calcular los registros a mostrar en la página actual
+  const indexOfLastRecord = currentPage * recordsPerPage
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage
+  const currentRecords = Dato.slice(indexOfFirstRecord, indexOfLastRecord)
+  const totalPages = Math.ceil(Dato.length / recordsPerPage)
 
   return (
     <>
@@ -109,7 +114,7 @@ const Material = () => {
             </tr>
           </thead>
           <tbody>
-            {(Array.isArray(Dato) ? Dato : []).map((item, index) => (
+            {(Array.isArray(currentRecords) ? currentRecords : []).map((item, index) => (
               <tr key={index} className="hover:bg-base-300">
                 <th>{item.id}</th>
                 <td>{item.codigo}</td>
@@ -119,21 +124,21 @@ const Material = () => {
                 <td>{item.contenedor}</td>
                 <td>{item.fecha}</td>
                 <td>
-                  {item.estatus === "En Proceso" ? (
-                    <div className="badge badge-outline badge-warning">En Proceso</div>
+                  {item.estatus === "Pendiente" ? (
+                    <div className="badge badge-outline badge-warning">Pendiente</div>
                   ) : item.estatus === "Preparado" ? (
                     <div className="badge badge-outline badge-success">Preparado</div>
                   ) : item.estatus === "Recibido" ? (
                     <div className="badge badge-outline badge-info">Recibido</div>
-                  ): null}
+                  ) : null}
                 </td>
                 <td>
                   <button
                     className="btn btn-ghost btn-xs"
                     onClick={() => {
-                      setLogin(true)
-                      setSelectedId(item.id)
-                      setSelectedStatus(item.estatus)
+                      setLogin(true);
+                      setSelectedId(item.id);
+                      setSelectedStatus(item.estatus);
                     }}
                     disabled={item.estatus === "Preparado"}
                   >
@@ -145,6 +150,26 @@ const Material = () => {
           </tbody>
         </table>
         {error && <p className="text-red-500 text-center">{error}</p>}
+        
+        {/* Paginación */}
+        <div className="flex justify-between mt-4">
+          <button
+            className="btn"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </button>
+          <span>Página {currentPage} de {totalPages}</span>
+          <button
+            className="btn"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Siguiente
+          </button>
+        </div>
+
         <dialog open={Login} className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg text-center">Log In!</h3>
@@ -203,4 +228,4 @@ const Material = () => {
   );
 }
 
-export default Material
+export default Material;
