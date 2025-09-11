@@ -6,7 +6,7 @@ import LineChanges from "./Widgets/lineChanges"
 import Material from "./Widgets/material"
 import change from "./assets/gif/change.gif"
 
-const url = import.meta.env.VITE_API_URL
+const url = import.meta.env.production.VITE_API_URL
 
 const enviarData = async (url, data) => {
   try {
