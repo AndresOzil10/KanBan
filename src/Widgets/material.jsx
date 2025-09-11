@@ -103,13 +103,17 @@ const Material = () => {
           <thead>
             <tr>
               <th>id</th>
-              <th>N. Material</th>
-              <th>Nombre</th>
+              <th>Bito</th>
+              <th>NP</th>
+              <th>Material</th>
+              <th>Descripcion</th>
               <th>SP</th>
-              <th>Ubicacion</th>
               <th>Contenedor</th>
-              <th>Fecha</th>
+              <th>Orden</th>
+              <th>Puesto Trabajo</th>
+              <th>Fecha Hora</th>
               <th>Estatus</th>
+              <th>Ayuda Visual</th>
               <th>Check</th>
             </tr>
           </thead>
@@ -117,20 +121,28 @@ const Material = () => {
             {(Array.isArray(currentRecords) ? currentRecords : []).map((item, index) => (
               <tr key={index} className="hover:bg-base-300">
                 <th>{item.id}</th>
-                <td>{item.codigo}</td>
-                <td>{item.nommat}</td>
+                <td>{item.bito}</td>
+                <td>{item.np}</td>
+                <td>{item.material}</td>
+                <td>{item.descripcion}</td>
                 <td>{item.sp}</td>
-                <td>{item.ubicacion}</td>
                 <td>{item.contenedor}</td>
+                <td>{item.orden}</td>
+                <td>{item.puesto_trabajo}</td>
                 <td>{item.fecha}</td>
                 <td>
-                  {item.estatus === "Pendiente" ? (
-                    <div className="badge badge-outline badge-warning">Pendiente</div>
+                  {item.estatus === "En Proceso" ? (
+                    <div className="badge badge-outline badge-warning">En Proceso</div>
                   ) : item.estatus === "Preparado" ? (
                     <div className="badge badge-outline badge-success">Preparado</div>
                   ) : item.estatus === "Recibido" ? (
                     <div className="badge badge-outline badge-info">Recibido</div>
                   ) : null}
+                </td>
+                <td>
+                  { 
+                    item.color === "Rev Orden" ? <div className="badge badge-outline badge-error">Revisar Orden</div> : <div aria-label="status" className="status status-xl" style={{ backgroundColor: item.color }}></div>
+                  }
                 </td>
                 <td>
                   <button

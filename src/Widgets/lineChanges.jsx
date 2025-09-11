@@ -5,6 +5,7 @@ import SaveIcon from "../icons/saveIcon"
 import user from "../assets/gif/user.gif"
 import gif from "../assets/gif/password.gif"
 import Swal from "sweetalert2"
+import { QRCodeCanvas } from "qrcode.react"
 
 const url = import.meta.env.VITE_API_URL
 
@@ -177,10 +178,10 @@ const LineChanges = () => {
                     </thead>
                     <tbody>
                         {(Array.isArray(currentRecords) ? currentRecords : []).map((item, index) => (
-                            <tr key={index}>
+                            <tr key={index} >
                                 <th>{item.id}</th>
-                                <td>{item.np}</td>
-                                <td>{item.op}</td>
+                                <td style={{ backgroundColor: item.usuario === 'SC40ADUA2' || item.usuario === 'SC40ADUA4' || item.usuario === 'SC40ADUA6' ? '#FFC800' : item.usuario === 'SC40ADUA' || item.usuario === 'SC40ADUA3' || item.usuario === 'SC40ADUA5' ? '#00FF15' : ''}}>{item.np}</td>
+                                <td><QRCodeCanvas value={item.op} size={48} /></td>
                                 <td><button className="btn btn-ghost btn-xs" onClick={()=>searchData(item.np)}><img width="22" height="20" src="https://img.icons8.com/emoji/48/information-emoji.png" alt="information-emoji"/></button></td>
                                 <td>{item.fecha}</td>
                                 <td>{item.hora}</td>
