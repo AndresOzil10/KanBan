@@ -3,6 +3,7 @@ import CloseIcon from "../icons/close"
 import user from "../assets/gif/user.gif"
 import gif from "../assets/gif/password.gif"
 import Swal from "sweetalert2"
+// import img_url from  "../assets/png/"
 
 const url = import.meta.env.VITE_API_URL
 
@@ -140,8 +141,18 @@ const Material = () => {
                   ) : null}
                 </td>
                 <td>
-                  { 
-                    item.color === "Rev Orden" ? <div className="badge badge-outline badge-error">Revisar Orden</div> : <div aria-label="status" className="status status-xl" style={{ backgroundColor: item.color }}></div>
+                  {item.color.startsWith('#') ? 
+                    <div aria-label="status"  className="status status-xl" style={{ backgroundColor: item.color }}></div> 
+                    : item.color === 'Rev Orden' ?
+                    <div className="badge badge-outline badge-secondary">Rev Orden</div>
+                    : <div className="avatar">
+                        <div className="w-20 h-14 rounded">
+                          <img
+                          src={`/png/${item.color}`}
+                          alt={item.color}
+                          />
+                        </div>
+                      </div>
                   }
                 </td>
                 <td>

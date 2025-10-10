@@ -6,7 +6,7 @@ import LineChanges from "./Widgets/lineChanges"
 import Material from "./Widgets/material"
 import change from "./assets/gif/change.gif"
 
-const url = import.meta.env.production.VITE_API_URL
+const url = import.meta.env.VITE_API_URL
 
 const enviarData = async (url, data) => {
   try {
@@ -32,6 +32,8 @@ const App = () => {
   const [fecha, setFecha] = useState(new Date())
   const [ShowNotification, setshowNotification] = useState(false)
   const [pendingCount, setPendingCount] = useState(0)
+
+  // console.log(import.meta.env.VITE_API_URL)
 
   const checkPendingStatus = async () => {
     const info = { aksi: "Pending" }
