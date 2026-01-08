@@ -28,7 +28,7 @@ const enviarData = async (url, data) => {
   }
 }
 
-const LineChanges = () => {
+const LineChanges = ({updateTrigger, onOpenModal, onOpenLogin }) => {
     const [open, setOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [nombreNomina, setNombreNomina] = useState('')
@@ -60,7 +60,7 @@ const LineChanges = () => {
 
     useEffect(() => {
         fetchData()
-    }, [fetchData])
+    }, [updateTrigger])
 
     const agregarRegistro = async () => {
         if (!nombreNomina || !npProducto || !ordenProduccion) {
@@ -97,17 +97,25 @@ const LineChanges = () => {
     }
 
     const searchData = async (id) => {
-        
         const info = { aksi: "DetailsPT", pt: id }
         try {
             const response = await enviarData(url, info)
             setShowInfo(response.data)
-            // console.log(response)
-            // Maneja la respuesta como sea necesario
+            // Usar la función del padre para abrir el modal global
+            if (onOpenModal) {
+                onOpenModal({ data: response.data, title: "Detalles del Producto Terminado" })
+            } else {
+                // Fallback al modal local si no hay función del padre
+                setInfo(true)
+            }
         } catch (error) {
             console.error("Error al buscar los datos:", error)
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los detalles'
+            })
         }
-        setInfo(true)
     }
 
     const CloseInfo = () => {
@@ -135,16 +143,12 @@ const LineChanges = () => {
               icon: 'error',
               title: 'Error',
               text: response.message,
-              // imageUrl: 'https://media.tenor.com/U5hmONvZGo8AAAAM/mmt-error-error.gif',
-              // background: '#000000'
             })
           } else if(response.status === 'success'){
             Swal.fire({
               icon: 'success',
               title: 'Success',
               text: response.message,
-              // imageUrl: 'https://media.tenor.com/1b2d3f4g5h6iAAAAM/success.gif',
-              // background: '#000000'
             })
             setLogin(false);
             fetchData();
@@ -198,9 +202,18 @@ const LineChanges = () => {
                                     <button
                                         className="btn btn-ghost btn-xs"
                                         onClick={() => {
-                                            setLogin(true);
-                                            setSelectedId(item.id);
-                                            setSelectedStatus(item.estatus);
+                                            if (onOpenLogin) {
+                                                onOpenLogin({ 
+                                                    id: item.id, 
+                                                    estatus: item.estatus,
+                                                    tipo: "Cambio" 
+                                                });
+                                            } else {
+                                                // Fallback al modal local
+                                                setLogin(true);
+                                                setSelectedId(item.id);
+                                                setSelectedStatus(item.estatus);
+                                            }
                                         }}
                                         disabled={item.estatus === "Preparado"}
                                     >
@@ -215,7 +228,7 @@ const LineChanges = () => {
                                         : <div className="avatar">
                                             <div className="w-20 h-14 rounded">
                                             <img
-                                            src={`/png/${item.color}`}
+                                            src={`/Kanban/png/${item.color}`}
                                             alt={item.color}
                                             />
                                             </div>
@@ -243,155 +256,103 @@ const LineChanges = () => {
                         Siguiente
                     </button>
                 </div>
-                <dialog open={login} className="modal">
-                    <div className="modal-box">
-                        <h3 className="font-bold text-lg text-center">Log In!</h3>
-                        <div className="w-full flex flex-col items-center mt-3">
-                        <label className="input validator">
-                            <img src={user} alt="" width={20} height={20} />
-                            <input
-                            type="text"
-                            required
-                            placeholder="Username"
-                            pattern="[A-Za-z][A-Za-z0-9\-]*"
-                            minLength="3"
-                            maxLength="30"
-                            title="Only letters, numbers or dash"
-                            value={Usuario}
-                            onChange={e => setUsuario(e.target.value)}
-                            />
-                        </label>
-                        <p className="validator-hint">Completa el nombre de usuario</p>
-                        </div>
-                        <div className="w-full flex flex-col items-center">
-                        <label className="input validator">
-                            <img src={gif} alt="" width={20} height={20} />
-                            <input
-                            type="password"
-                            required
-                            placeholder="Password"
-                            value={Password}
-                            onChange={e => setPassword(e.target.value)}
-                            />
-                        </label>
-                        <p className="validator-hint hidden">Completa la contraseña</p>
-                        </div>
-                        <div className="modal-action ml-9 ">
-                        <button
-                            className="btn bg-transparent border-none shadow-none"
-                            onClick={() => agregarRegister(selectedId, selectedStatus)}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? <span className="loading loading-infinity text-info"></span> : "Sign In"}
-                        </button>
-                        <button className="btn bg-transparent border-none shadow-none" onClick={() => setLogin(false)}>
-                            <CloseIcon />
-                        </button>
-                        </div>
-                        {mostrarNotificacion ? <div role="alert" className="alert alert-error" >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span><b>Campos Vacios!</b> Favor de Completarlos.</span>
-                        </div> : null}
-                    </div>
-                </dialog>
             </div>
+            
             <div className="flex justify-end">
                 <button className="btn bg-transparent border-none mt-4 btn-square shadow-none" onClick={() => setOpen(true)}>
                     <img src={add} alt="" width={20} height={20} />
                 </button>
             </div>
-            <dialog open={open} className="modal">
-                <div className="modal-box">
-                    <h3 className="font-bold text-lg text-center">Cambios de Línea</h3>
-                    <div className="form-control rounded-2xl mt-3 border-2 text-center bg-gray-300">
-                        <label>Numero Nomina:</label>
-                    </div>
-                    <div className="mt-1.5">
-                        <input type="text" className="input input-ghost w-full" required placeholder="Type here" value={nombreNomina} onChange={(e) => setNombreNomina(e.target.value)} />
-                    </div>
-                    <div className="form-control rounded-2xl mt-3 border-2 text-center bg-gray-300">
-                        <label>NP Producto Terminado:</label>
-                    </div>
-                    <div className="mt-1.5">
-                        <input type="text" required placeholder="Type here" className="input input-ghost w-full" value={npProducto} onChange={(e) => setNpProducto(e.target.value)} />
-                    </div>
-                    <div className="form-control rounded-2xl mt-3 border-2 text-center bg-gray-300">
-                        <label>Orden de Producción:</label>
-                    </div>
-                    <div className="mt-1.5">
-                        <input type="text" required placeholder="Type here" className="input input-ghost w-full" value={ordenProduccion} onChange={(e) => setOrdenProduccion(e.target.value)} />
-                    </div>
-                    <div className="modal-action ml-3 ">
-                        <button
-                            className="btn bg-transparent border-none shadow-none"
-                            onClick={agregarRegistro}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? <span className="loading loading-infinity text-info"></span> : <SaveIcon />}
-                        </button>
-                        <button className="btn bg-transparent border-none shadow-none" onClick={() => setOpen(false)}>
-                            <CloseIcon />
-                        </button>
-                    </div>
-                    {mostrarNotificacion ? <div role="alert" className="alert alert-error" >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span><b>Campos Vacios!</b> Favor de Completarlos.</span>
-                    </div> : null}
-                </div>
-            </dialog>
-            <dialog open={info} className="modal">
-                <div className="modal-box w-11/12 max-w-5xl">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Bito</th>
-                                <th>Material</th>
-                                <th>Description</th>
-                                <th>SP</th>
-                                <th>Suministro</th>
-                                <th>Puesto</th>
-                                <th>Check</th>
-                            </tr>
-                            </thead>
-                        <tbody>
-                        {showInfo.map((item, index) => (
-                            <tr key={index} className="hover:bg-base-300">
-                                <td>
-                                    <div className="">{item.bito}</div>
-                                </td>
-                                <td>
-                                    <div className="">{item.material}</div>
-                                </td>
-                                <td>
-                                    <div className="">{item.descripcion}</div>
-                                </td>
-                                <td>
-                                    <div className="">{item.sp}</div>
-                                </td>
-                                <td>
-                                    <div className="">{item.suministro}</div>
-                                </td>
-                                <td>
-                                    <div className="">{item.puesto}</div>
-                                </td>
-                                <td>
-                                    <input type="checkbox" className="checkbox checkbox-xs" />
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    <div className="modal-action">
-                        <form method="dialog">
-                            <button className="btn" onClick={CloseInfo}>Close</button>
-                        </form>
+            
+            {/* Modal para agregar registro */}
+            {open && (
+                <div className="fixed inset-0 z-[10001]">
+                    <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setOpen(false)} />
+                    <div className="absolute inset-0 flex items-center justify-center p-4">
+                        <div className="relative bg-base-100 rounded-xl shadow-2xl w-full max-w-md">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="font-bold text-lg text-center">Cambios de Línea</h3>
+                                    <button 
+                                        className="btn btn-sm btn-circle btn-ghost"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div className="form-control">
+                                        <label className="label">
+                                            <span className="label-text font-semibold">Número Nómina</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            className="input input-bordered w-full" 
+                                            placeholder="Ingrese número de nómina"
+                                            value={nombreNomina}
+                                            onChange={(e) => setNombreNomina(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-control">
+                                        <label className="label">
+                                            <span className="label-text font-semibold">NP Producto Terminado</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            className="input input-bordered w-full" 
+                                            placeholder="Ingrese NP de producto"
+                                            value={npProducto}
+                                            onChange={(e) => setNpProducto(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-control">
+                                        <label className="label">
+                                            <span className="label-text font-semibold">Orden de Producción</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            className="input input-bordered w-full" 
+                                            placeholder="Ingrese orden de producción"
+                                            value={ordenProduccion}
+                                            onChange={(e) => setOrdenProduccion(e.target.value)}
+                                        />
+                                    </div>
+                                    
+                                    {mostrarNotificacion && (
+                                        <div className="alert alert-error">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Campos Vacíos! Favor de Completarlos.</span>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                <div className="modal-action mt-6">
+                                    <button 
+                                        className="btn btn-ghost"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        className="btn btn-primary"
+                                        onClick={agregarRegistro}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? <span className="loading loading-spinner loading-sm"></span> : "Guardar"}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </dialog>
+            )}
+            
+            
         </>
     );
 };
