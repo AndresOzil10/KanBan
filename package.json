@@ -1,12 +1,13 @@
 {
   "name": "kanba",
   "private": true,
-  "homepage": "http://127.0.0.1/kanban/",
+  "homepage": "http://10.144.13.5:8080/WebSites/KanBan/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:iis":"vite build --base=/http://10.144.13.5:8080/WebSites/KanBan/",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -14,10 +15,12 @@
     "@tailwindcss/vite": "^4.1.12",
     "animate.css": "^4.1.1",
     "axios": "^1.11.0",
+    "lucide-react": "^0.562.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
+    "react-router-dom": "^7.12.0",
     "sweetalert2": "^11.22.4",
     "tailwindcss": "^4.1.12"
   },
